@@ -1,0 +1,16 @@
+{
+  "name": "api",
+  "module": "src/index.ts",
+  "type": "module",
+  "devDependencies": {
+    "@types/bun": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5.0.0"
+  },
+  "dependencies": {
+    "@trpc/server": "^11.0.0-rc.724",
+    "fastify": "^5.2.1",
+    "zod": "^3.24.1"
+  }
+}
