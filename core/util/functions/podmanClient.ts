@@ -6,6 +6,7 @@ export function createPodmanClient(socketPath: string) {
 	const client = axios.create({
 		socketPath,
 		baseURL: '/',
+		adapter: 'fetch',
 	});
 
 	const api = new OpenApiAxios<paths, 'axios'>(client, {
