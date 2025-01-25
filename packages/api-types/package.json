@@ -1,0 +1,21 @@
+{
+	"name": "api-types",
+	"module": "src/index.ts",
+	"type": "module",
+	"devDependencies": {
+		"@types/bun": "latest"
+	},
+	"peerDependencies": {
+		"typescript": "^5.0.0"
+	},
+	"dependencies": {
+		"@types/swagger2openapi": "^7.0.4",
+		"axios": "^1.7.9",
+		"openapi-typescript": "^7.5.2",
+		"swagger2openapi": "^7.0.8",
+		"yaml": "^2.7.0"
+	},
+	"scripts": {
+		"build": "bun build --target=bun --outfile=dist/build.js src/index.ts"
+	}
+}
