@@ -1,1 +1,3 @@
 packages/util/types/podman.ts
+node_modules/
+dist/
