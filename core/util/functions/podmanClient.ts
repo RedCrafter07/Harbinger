@@ -76,20 +76,20 @@ function createClient<T extends Record<string, any>>(
 	axios: AxiosInstance,
 ): FunctionParams<T> {
 	return {
-		delete: async (path, config) => {
-			return await axios.delete(path, config);
+		delete: (path, config) => {
+			return axios.delete(path, config);
 		},
-		get: async (path, config) => {
-			return await axios.get(path, config);
+		get: (path, config) => {
+			return axios.get(path, config);
 		},
-		patch: async (path, config) => {
-			return await axios.patch(path, config);
+		patch: (path, config) => {
+			return axios.patch(path, config);
 		},
-		post: async (path, body, config) => {
-			return await axios.post(path, body, config);
+		post: (path, body, config) => {
+			return axios.post(path, body, config);
 		},
-		put: async (path, config) => {
-			return await axios.put(path, config);
+		put: (path, config) => {
+			return axios.put(path, config);
 		},
 	};
 }
