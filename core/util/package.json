@@ -1,6 +1,8 @@
 {
+  "devDependencies": {
+    "@types/bun": "^1.2.0"
+  },
   "dependencies": {
-    "@web-bee-ru/openapi-axios": "^0.0.5",
     "axios": "^1.7.9"
   }
 }
