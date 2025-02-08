@@ -1,10 +1,9 @@
-import axios, {
+import {
 	AxiosHeaders,
 	type AxiosInstance,
 	type AxiosRequestConfig,
 	type AxiosResponse,
 } from 'axios';
-import type { paths } from '../types/podman';
 
 type Method = 'get' | 'delete' | 'post' | 'put' | 'patch';
 
@@ -16,7 +15,7 @@ type Config<
 	S extends Record<string, any>,
 	P extends string,
 	M extends Method,
-> = S[P][M] & RouteData;
+> = Omit<RouteData, 'responses'> & S[P][M];
 
 interface RouteData {
 	parameters?: {
@@ -52,16 +51,13 @@ interface RequestConfig<C extends RouteData> extends AxiosRequestConfig {
 	path?: C['parameters'] extends { path?: infer P } ? P : never;
 }
 
-interface Response<C extends RouteData, S extends number>
-	extends AxiosResponse {
-	data: C['requestBody'] extends {
-		content: {
-			'application/json': infer R;
-		};
-	}
-		? R
-		: never;
-}
+type Response<C extends RouteData> = {
+	[S in keyof C['responses']]: AxiosResponse<
+		C['responses'][S] extends { content: { 'application/json': infer D } }
+			? D
+			: never
+	> & { status: S };
+}[keyof C['responses'] & number];
 
 type FunctionParams<S extends Record<string, any>> = {
 	[M in Method]: M extends 'post'
@@ -69,31 +65,31 @@ type FunctionParams<S extends Record<string, any>> = {
 				path: P,
 				body?: RequestBody<Config<S, P, M>>,
 				config?: RequestConfig<Config<S, P, M>>,
-		  ) => Promise<unknown>
+		  ) => Promise<Response<Config<S, P, M>>>
 		: <P extends Paths<S, M> & string>(
 				path: P,
 				config?: RequestConfig<Config<S, P, M>>,
-		  ) => Promise<unknown>;
+		  ) => Promise<Response<Config<S, P, M>>>;
 };
 
 function createClient<T extends Record<string, any>>(
 	axios: AxiosInstance,
 ): FunctionParams<T> {
 	return {
-		delete: (path, config) => {
-			return axios.delete(path, config);
+		delete: async (path, config) => {
+			return await axios.delete(path, config);
 		},
-		get: (path, config) => {
-			return axios.get(path, config);
+		get: async (path, config) => {
+			return await axios.get(path, config);
 		},
-		patch: (path, config) => {
-			return axios.patch(path, config);
+		patch: async (path, config) => {
+			return await axios.patch(path, config);
 		},
-		post: (path, body, config) => {
-			return axios.post(path, body, config);
+		post: async (path, body, config) => {
+			return await axios.post(path, body, config);
 		},
-		put: (path, config) => {
-			return axios.put(path, config);
+		put: async (path, config) => {
+			return await axios.put(path, config);
 		},
 	};
 }
