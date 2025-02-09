@@ -5,6 +5,7 @@ import {
 import fastify from 'fastify';
 import { createContext } from './tRPC/context';
 import { router, type Router } from './routers/index';
+import 'dotenv';
 
 const server = fastify();
 
