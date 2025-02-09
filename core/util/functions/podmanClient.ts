@@ -77,19 +77,45 @@ export function createClient<T extends Record<string, any>>(
 ): FunctionParams<T> {
 	return {
 		delete: (path, config) => {
-			return axios.delete(path, config);
+			const axiosConfig = { ...config, path: undefined };
+
+			return axios.delete(insertPaths(path, config?.path), axiosConfig);
 		},
 		get: (path, config) => {
-			return axios.get(path, config);
+			const axiosConfig = { ...config, path: undefined };
+
+			return axios.get(insertPaths(path, config?.path), axiosConfig);
 		},
 		patch: (path, config) => {
-			return axios.patch(path, config);
+			const axiosConfig = { ...config, path: undefined };
+
+			return axios.patch(insertPaths(path, config?.path), axiosConfig);
 		},
 		post: (path, body, config) => {
-			return axios.post(path, body, config);
+			const axiosConfig = { ...config, path: undefined };
+
+			return axios.post(
+				insertPaths(path, config?.path),
+				body,
+				axiosConfig,
+			);
 		},
 		put: (path, config) => {
-			return axios.put(path, config);
+			const axiosConfig = { ...config, path: undefined };
+
+			return axios.put(insertPaths(path, config?.params), axiosConfig);
 		},
 	};
+}
+
+function insertPaths(path: string, paths?: unknown) {
+	if (!paths) return path;
+
+	const typedPaths = paths as Record<string, string>;
+
+	for (const p in typedPaths) {
+		path = path.replace(`{${p}}`, typedPaths[p]);
+	}
+
+	return path;
 }
