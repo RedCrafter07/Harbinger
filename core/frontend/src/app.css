@@ -1,1 +1,14 @@
 @import 'tailwindcss';
+
+body {
+	@apply bg-zinc-900 text-white;
+	font-family: 'Figtree Variable', sans-serif;
+}
+
+h1 {
+	@apply text-3xl;
+}
+
+h3 {
+	@apply text-xl;
+}
