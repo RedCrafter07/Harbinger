@@ -72,7 +72,7 @@ type FunctionParams<S extends Record<string, any>> = {
 		  ) => Promise<Response<Config<S, P, M>>>;
 };
 
-function createClient<T extends Record<string, any>>(
+export function createClient<T extends Record<string, any>>(
 	axios: AxiosInstance,
 ): FunctionParams<T> {
 	return {
