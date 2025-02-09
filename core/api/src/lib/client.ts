@@ -4,7 +4,7 @@ import axios from 'axios';
 
 const client = axios.create({
 	socketPath: process.env.SOCKET_PATH,
-	baseURL: 'http://d/',
+	baseURL: 'http://d',
 });
 
 const containers = createClient<PodmanPaths>(client);
