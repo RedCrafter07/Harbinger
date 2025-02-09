@@ -1,0 +1,10 @@
+{
+	"compilerOptions": {
+		"paths": {
+			"@util/*": ["../../core/util/*"],
+			"@api/*": ["../../core/api/*"],
+			"@router/*": ["../../core/api/src/routers/*"],
+			"@router": ["../../core/api/src/routers/index.ts"]
+		}
+	}
+}
