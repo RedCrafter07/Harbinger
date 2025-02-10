@@ -16,6 +16,8 @@
 		"yaml": "^2.7.0"
 	},
 	"scripts": {
-		"build": "bun build --target=bun --outfile=dist/build.js src/index.ts"
+		"build": "bun build --target=bun --outfile=dist/build.js src/index.ts",
+		"start": "bun run src/index.ts",
+		"x": "bun i && bun run start"
 	}
 }
