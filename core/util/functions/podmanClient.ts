@@ -103,7 +103,7 @@ export function createClient<T extends Record<string, any>>(
 		put: (path, config) => {
 			const axiosConfig = { ...config, path: undefined };
 
-			return axios.put(insertPaths(path, config?.params), axiosConfig);
+			return axios.put(insertPaths(path, config?.path), axiosConfig);
 		},
 	};
 }
