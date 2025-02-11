@@ -9,7 +9,7 @@ const app = new Elysia();
 app.use(
 	trpc(router, {
 		endpoint: '/api',
-		createContext: ({ req, resHeaders }) => {},
+		createContext,
 	}),
 );
 
