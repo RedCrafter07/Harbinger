@@ -1,28 +1,18 @@
-import {
-	fastifyTRPCPlugin,
-	type FastifyTRPCPluginOptions,
-} from '@trpc/server/adapters/fastify';
-import fastify from 'fastify';
+import chalk from 'chalk';
+import { Elysia } from 'elysia';
+import { trpc } from '@elysiajs/trpc';
+import { router } from './routers';
 import { createContext } from './tRPC/context';
-import { router, type Router } from './routers/index';
-import 'dotenv';
 
-const server = fastify();
+const app = new Elysia();
 
-server.register(fastifyTRPCPlugin, {
-	prefix: '/api',
-	trpcOptions: {
-		router: router,
-		createContext,
-		onError({ path, error }) {
-			console.error(`Error in tRPC handler on path '${path}':`, error);
-		},
-	} satisfies FastifyTRPCPluginOptions<Router>['trpcOptions'],
-});
+app.use(
+	trpc(router, {
+		endpoint: '/api',
+		createContext: ({ req, resHeaders }) => {},
+	}),
+);
 
-try {
-	await server.listen({ port: 2000 });
-} catch (err) {
-	server.log.error(err);
-	process.exit(1);
-}
+app.listen(2000);
+
+console.log(chalk.green(`[API]: Running on port ${app.server?.port}!`));
