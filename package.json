@@ -1,0 +1,6 @@
+{
+	"name": "harbinger",
+	"workspaces": [
+		"core/*"
+	]
+}
