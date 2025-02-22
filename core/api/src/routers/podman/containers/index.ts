@@ -2,6 +2,8 @@ import { containers } from '@api/src/lib/client';
 import { router, publicProcedure } from '@api/src/tRPC';
 import { TRPCError } from '@trpc/server';
 import {
+	containerArchiveGetSchema,
+	containerByIdSchema,
 	containerCreateSchema,
 	containerListSchema,
 	type ContainerListInput,
@@ -23,24 +25,33 @@ export const containerRouter = router({
 			} = input;
 
 			const portBindings =
-				exposedPorts?.reduce((acc, portConfig) => {
-					const { protocol, containerPort, hostPort } = portConfig;
-					const key = `${containerPort}/${protocol}`; // 80/tpc, for example
-					acc[key] = [
-						{
-							HostPort: hostPort ? String(hostPort) : undefined,
-						},
-					];
-					return acc;
-				}, {} as { [key: string]: { HostPort?: string }[] }) || {};
+				exposedPorts?.reduce(
+					(acc, portConfig) => {
+						const { protocol, containerPort, hostPort } =
+							portConfig;
+						const key = `${containerPort}/${protocol}`; // 80/tpc, for example
+						acc[key] = [
+							{
+								HostPort: hostPort
+									? String(hostPort)
+									: undefined,
+							},
+						];
+						return acc;
+					},
+					{} as { [key: string]: { HostPort?: string }[] },
+				) || {};
 
 			const exposedPortsObj =
-				exposedPorts?.reduce((acc, portConfig) => {
-					const { protocol, containerPort } = portConfig;
-					const key = `${containerPort}/${protocol}`;
-					acc[key] = {};
-					return acc;
-				}, {} as { [key: string]: {} }) || {};
+				exposedPorts?.reduce(
+					(acc, portConfig) => {
+						const { protocol, containerPort } = portConfig;
+						const key = `${containerPort}/${protocol}`;
+						acc[key] = {};
+						return acc;
+					},
+					{} as { [key: string]: {} },
+				) || {};
 
 			const createOptions = {
 				Image: image,
@@ -49,7 +60,7 @@ export const containerRouter = router({
 				Env: env
 					? Object.entries(env).map(
 							([key, value]) => `${key}=${value}`,
-					  )
+						)
 					: undefined,
 				Labels: labels,
 				ExposedPorts: exposedPortsObj,
@@ -133,5 +144,49 @@ export const containerRouter = router({
 				cause: error,
 			});
 		}
+	}),
+	byId: p.input(containerByIdSchema).query(async ({ input }) => {
+		const res = await containers.get('/containers/{name}/json', {
+			path: {
+				name: input.id,
+			},
+		});
+
+		return res.data;
+	}),
+	archive: router({
+		get: p.input(containerArchiveGetSchema).query(async ({ input }) => {
+			const res = await containers.get('/containers/{name}/archive', {
+				query: {
+					path: input.path,
+				},
+				path: {
+					name: input.id,
+				},
+			});
+
+			switch (res.status) {
+				case 200:
+					return res.data;
+				case 400:
+					throw new TRPCError({
+						code: 'BAD_REQUEST',
+						cause: res.data.cause,
+						message: res.data.message,
+					});
+				case 404:
+					throw new TRPCError({
+						code: 'NOT_FOUND',
+						cause: res.data.cause,
+						message: res.data.message,
+					});
+				case 500:
+					throw new TRPCError({
+						code: 'INTERNAL_SERVER_ERROR',
+						cause: res.data.cause,
+						message: res.data.message,
+					});
+			}
+		}),
 	}),
 });
