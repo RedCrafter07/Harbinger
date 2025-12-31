@@ -13,7 +13,8 @@ export const user = sqliteTable('user', {
 	updatedAt: integer('updated_at', { mode: 'timestamp_ms' })
 		.default(sql`(cast(unixepoch('subsecond') * 1000 as integer))`)
 		.$onUpdate(() => /* @__PURE__ */ new Date())
-		.notNull()
+		.notNull(),
+	twoFactorEnabled: integer('two_factor_enabled', { mode: 'boolean' }).default(false)
 });
 
 export const session = sqliteTable(
@@ -85,9 +86,62 @@ export const verification = sqliteTable(
 	(table) => [index('verification_identifier_idx').on(table.identifier)]
 );
 
+export const passkey = sqliteTable(
+	'passkey',
+	{
+		id: text('id').primaryKey(),
+		name: text('name'),
+		publicKey: text('public_key').notNull(),
+		userId: text('user_id')
+			.notNull()
+			.references(() => user.id, { onDelete: 'cascade' }),
+		credentialID: text('credential_id').notNull(),
+		counter: integer('counter').notNull(),
+		deviceType: text('device_type').notNull(),
+		backedUp: integer('backed_up', { mode: 'boolean' }).notNull(),
+		transports: text('transports'),
+		createdAt: integer('created_at', { mode: 'timestamp_ms' }),
+		aaguid: text('aaguid')
+	},
+	(table) => [
+		index('passkey_userId_idx').on(table.userId),
+		index('passkey_credentialID_idx').on(table.credentialID)
+	]
+);
+
+export const ssoProvider = sqliteTable('sso_provider', {
+	id: text('id').primaryKey(),
+	issuer: text('issuer').notNull(),
+	oidcConfig: text('oidc_config'),
+	samlConfig: text('saml_config'),
+	userId: text('user_id').references(() => user.id, { onDelete: 'cascade' }),
+	providerId: text('provider_id').notNull().unique(),
+	organizationId: text('organization_id'),
+	domain: text('domain').notNull()
+});
+
+export const twoFactor = sqliteTable(
+	'two_factor',
+	{
+		id: text('id').primaryKey(),
+		secret: text('secret').notNull(),
+		backupCodes: text('backup_codes').notNull(),
+		userId: text('user_id')
+			.notNull()
+			.references(() => user.id, { onDelete: 'cascade' })
+	},
+	(table) => [
+		index('twoFactor_secret_idx').on(table.secret),
+		index('twoFactor_userId_idx').on(table.userId)
+	]
+);
+
 export const userRelations = relations(user, ({ many }) => ({
 	sessions: many(session),
-	accounts: many(account)
+	accounts: many(account),
+	passkeys: many(passkey),
+	ssoProviders: many(ssoProvider),
+	twoFactors: many(twoFactor)
 }));
 
 export const sessionRelations = relations(session, ({ one }) => ({
@@ -100,6 +154,27 @@ export const sessionRelations = relations(session, ({ one }) => ({
 export const accountRelations = relations(account, ({ one }) => ({
 	user: one(user, {
 		fields: [account.userId],
+		references: [user.id]
+	})
+}));
+
+export const passkeyRelations = relations(passkey, ({ one }) => ({
+	user: one(user, {
+		fields: [passkey.userId],
+		references: [user.id]
+	})
+}));
+
+export const ssoProviderRelations = relations(ssoProvider, ({ one }) => ({
+	user: one(user, {
+		fields: [ssoProvider.userId],
+		references: [user.id]
+	})
+}));
+
+export const twoFactorRelations = relations(twoFactor, ({ one }) => ({
+	user: one(user, {
+		fields: [twoFactor.userId],
 		references: [user.id]
 	})
 }));
