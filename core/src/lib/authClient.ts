@@ -1,6 +1,8 @@
+import { passkeyClient } from '@better-auth/passkey/client';
 import { ssoClient } from '@better-auth/sso/client';
+import { twoFactorClient } from 'better-auth/plugins';
 import { createAuthClient } from 'better-auth/svelte';
 
 export const authClient = createAuthClient({
-	plugins: [ssoClient()]
+	plugins: [passkeyClient(), ssoClient(), twoFactorClient()]
 });
